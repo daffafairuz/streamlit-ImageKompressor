@@ -1,0 +1,4 @@
+streamlit
+pillow
+pillow-heif
+pandas
