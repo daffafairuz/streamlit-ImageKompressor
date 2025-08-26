@@ -3,7 +3,9 @@ from PIL import Image
 import pillow_heif
 import io, zipfile, os, time, pandas as pd
 
-st.set_page_config(page_title="Bulk Image Compressor", page_icon="🖼️")
+logo = Image.open(Logo.png)
+
+st.set_page_config(page_title="Bulk Image Compressor", page_icon=logo)
 st.title("Image Compressor")
 st.subheader("by Dafruz")
 st.write("Upload beberapa gambar (JPG/PNG/HEIC) untuk dikompres")
@@ -62,3 +64,4 @@ if uploaded_files:
         file_name=f"compressed_images_{int(time.time())}.zip",
         mime="application/zip"
     )
+
