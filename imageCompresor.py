@@ -22,7 +22,13 @@ uploaded_files = st.file_uploader(
 
 if uploaded_files:
     quality = st.slider("Pilih kualitas kompresi", 10, 95, 70)
-    
+
+    # Pilih format output
+    output_format = st.selectbox(
+        "Pilih format output",
+        ["JPEG", "PNG", "WEBP"]
+    )
+
     # Buat file ZIP di memory
     zip_buffer = io.BytesIO()
     file_data = []  # untuk menyimpan ukuran sebelum & sesudah
@@ -31,12 +37,25 @@ if uploaded_files:
         for uploaded_file in uploaded_files:
             # Buka gambar (JPG/PNG/HEIC)
             image = Image.open(uploaded_file).convert("RGB")
-            
+
             # Kompres
             img_io = io.BytesIO()
-            image.save(img_io, "JPEG", quality=quality, optimize=True)
+            save_params = {}
+
+            # Atur parameter berdasarkan format
+            if output_format == "JPEG":
+                save_params = {"format": "JPEG", "quality": quality, "optimize": True}
+                ext = ".jpg"
+            elif output_format == "PNG":
+                save_params = {"format": "PNG", "optimize": True}
+                ext = ".png"
+            elif output_format == "WEBP":
+                save_params = {"format": "WEBP", "quality": quality}
+                ext = ".webp"
+
+            image.save(img_io, **save_params)
             img_io.seek(0)
-            
+
             # Ukuran file
             original_size = uploaded_file.size / 1024  # KB
             compressed_size = len(img_io.getvalue()) / 1024  # KB
@@ -48,9 +67,9 @@ if uploaded_files:
                 "Ukuran Kompres (KB)": f"{compressed_size:.2f}",
                 "Pengurangan (%)": f"{reduction:.1f}%"
             })
-            
+
             # Tambahkan ke zip
-            filename = os.path.splitext(uploaded_file.name)[0] + "_compressed.jpg"
+            filename = os.path.splitext(uploaded_file.name)[0] + "_compressed" + ext
             zipf.writestr(filename, img_io.read())
     zip_buffer.seek(0)
 
@@ -64,5 +83,3 @@ if uploaded_files:
         file_name=f"compressed_images_{int(time.time())}.zip",
         mime="application/zip"
     )
-
-
